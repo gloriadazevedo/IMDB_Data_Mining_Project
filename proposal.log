@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6100 64-bit) (preloaded format=pdflatex 2016.11.18)  26 MAR 2017 15:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2016.11.18)  18 APR 2017 14:35
 entering extended mode
 **./proposal.tex
 (proposal.tex
@@ -140,12 +140,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 25--34
 
 [1
 
-{C:/Users/glori/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2]
+{C:/Users/glori/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
 (proposal.aux) ) 
 Here is how much of TeX's memory you used:
  744 strings out of 493333
  10528 string characters out of 3130142
- 74540 words of memory out of 3000000
+ 74537 words of memory out of 3000000
  4329 multiletter control sequences out of 15000+200000
  6844 words of font info for 25 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -155,9 +155,9 @@ ublic/amsfonts/cm/cmr10.pfb><C:/Users/glori/AppData/Local/Programs/MiKTeX 2.9/f
 onts/type1/public/amsfonts/cm/cmr12.pfb><C:/Users/glori/AppData/Local/Programs/
 MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Users/glori/AppData/Loc
 al/Programs/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on proposal.pdf (2 pages, 55164 bytes).
+Output written on proposal.pdf (1 page, 54772 bytes).
 PDF statistics:
- 25 PDF objects out of 1000 (max. 8388607)
+ 22 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
