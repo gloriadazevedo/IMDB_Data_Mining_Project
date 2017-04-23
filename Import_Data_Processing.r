@@ -312,3 +312,58 @@
                  # 448                    1 
                  # USA         West Germany 
                 # 3807                    3 
+
+				
+#Let's look at actor/director effects--dont' use the direct names for now since
+#that would be a whole lot of categorical variables
+#adjusted R-squared is still low and all predictors are signficant
+	model_4<-lm(gross~budget+movie_facebook_likes+imdb_score+cast_total_facebook_likes+director_facebook_likes+actor_3_facebook_likes+actor_1_facebook_likes+actor_2_facebook_likes,data=full_data)
+	summary(model_4)
+	
+	# Call:
+	# lm(formula = gross ~ budget + movie_facebook_likes + imdb_score + 
+		# cast_total_facebook_likes + director_facebook_likes + actor_3_facebook_likes + 
+		# actor_1_facebook_likes + actor_2_facebook_likes, data = full_data)
+
+	# Residuals:
+		   # Min         1Q     Median         3Q        Max 
+	# -308377397  -32865132  -15164146   15016343  661421773 
+
+	# Coefficients:
+								# Estimate Std. Error t value Pr(>|t|)    
+	# (Intercept)               -2.682e+07  6.281e+06  -4.270 2.00e-05 ***
+	# budget                     2.224e-02  4.363e-03   5.098 3.59e-07 ***
+	# movie_facebook_likes       8.278e+02  4.960e+01  16.690  < 2e-16 ***
+	# imdb_score                 8.277e+06  9.724e+05   8.512  < 2e-16 ***
+	# cast_total_facebook_likes  1.349e+04  8.956e+02  15.059  < 2e-16 ***
+	# director_facebook_likes    1.025e+03  3.306e+02   3.099  0.00195 ** 
+	# actor_3_facebook_likes    -1.414e+04  1.499e+03  -9.431  < 2e-16 ***
+	# actor_1_facebook_likes    -1.338e+04  8.993e+02 -14.875  < 2e-16 ***
+	# actor_2_facebook_likes    -1.262e+04  9.513e+02 -13.262  < 2e-16 ***
+	# ---
+	# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+	# Residual standard error: 60380000 on 3872 degrees of freedom
+	  # (1162 observations deleted due to missingness)
+	# Multiple R-squared:  0.2543,    Adjusted R-squared:  0.2527 
+	# F-statistic:   165 on 8 and 3872 DF,  p-value: < 2.2e-16
+
+	
+#total number of rows
+	dim(full_data)
+	#5043 total movies
+	
+#Subset the data so that we can work in the same units
+	keep_country<-c("USA","Canada","UK","France","Germany")
+	keep_language<-c("English")
+	keep_content_rating<-c("G","PG","PG-13","R")
+	us_english_data<-full_data[which(full_data$country %in% keep_country),]
+	us_english_data<-us_english_data[which(us_english_data$language %in% keep_language),]
+	us_english_data<-us_english_data[which(us_english_data$content_rating %in% keep_content_rating),]
+	summary(us_english_data)
+
+#How many rows in the subset?
+	dim(us_english_data)
+	#4034 rows
+	#about 80% of the original data
+	
