@@ -362,8 +362,78 @@
 	us_english_data<-us_english_data[which(us_english_data$content_rating %in% keep_content_rating),]
 	summary(us_english_data)
 
+#also need to get rid of the NAs from some of the remaining columns
+	#num_critic_for_reviews
+	us_english_data<-us_english_data[which(!is.na(us_english_data$num_critic_for_reviews)),]
+	#duration
+	us_english_data<-us_english_data[which(!is.na(us_english_data$duration)),]
+	#actor_3_facebook_likes
+	us_english_data<-us_english_data[which(!is.na(us_english_data$actor_3_facebook_likes)),]
+	#gross
+	us_english_data<-us_english_data[which(!is.na(us_english_data$gross)),]
+	#facenumber_in_poster
+	us_english_data<-us_english_data[which(!is.na(us_english_data$facenumber_in_poster)),]
+	#budget
+	us_english_data<-us_english_data[which(!is.na(us_english_data$budget)),]
+	#aspect_ratio
+	us_english_data<-us_english_data[which(!is.na(us_english_data$aspect_ratio)),]
+	
+	
 #How many rows in the subset?
 	dim(us_english_data)
-	#4034 rows
-	#about 80% of the original data
+	#3420 rows
+	#about 68% of the original data
+	#most accurate subset of the data
 	
+#Want to create new variables that say whether or not the movie has a specific genre
+#breakdown the current genre category into binary predictors
+	#Action
+	us_english_data$is_action<-grepl("Action",us_english_data$genre)
+	#Adventure
+	us_english_data$is_adventure<-grepl("Adventure",us_english_data$genre)
+	#Animation
+	us_english_data$is_animation<-grepl("Animation",us_english_data$genre)
+	#Biography
+	us_english_data$is_biography<-grepl("Biography",us_english_data$genre)
+	#Comedy
+	us_english_data$is_comedy<-grepl("Comedy",us_english_data$genre)
+	#Crime
+	us_english_data$is_crime<-grepl("Crime",us_english_data$genre)
+	#Documentary
+	us_english_data$is_documentary<-grepl("Documentary",us_english_data$genre)
+	#Drama
+	us_english_data$is_drama<-grepl("Drama",us_english_data$genre)
+	#Family
+	us_english_data$is_family<-grepl("Family",us_english_data$genre)
+	#Fantasy
+	us_english_data$is_fantasy<-grepl("Fantasy",us_english_data$genre)
+	#Film-Noir
+	us_english_data$is_filmnoir<-grepl("Film-Noir",us_english_data$genre)
+	#Game-Show
+	us_english_data$is_gameshow<-grepl("Game-Show",us_english_data$genre)
+	#History
+	us_english_data$is_history<-grepl("History",us_english_data$genre)
+	#Horror
+	us_english_data$is_horror<-grepl("Horror",us_english_data$genre)
+	#Music/#Musical
+	us_english_data$is_music<-grepl("Music",us_english_data$genre)
+	#Mystery
+	us_english_data$is_mystery<-grepl("Mystery",us_english_data$genre)
+	#News
+	us_english_data$is_news<-grepl("News",us_english_data$genre)
+	#Reality-TV
+	us_english_data$is_realitytv<-grepl("Reality-TV",us_english_data$genre)
+	#Romance
+	us_english_data$is_romance<-grepl("Romance",us_english_data$genre)
+	#Sci-Fi
+	us_english_data$is_scifi<-grepl("Sci-Fi",us_english_data$genre)
+	#Short
+	us_english_data$is_short<-grepl("Short",us_english_data$genre)
+	#Sport
+	us_english_data$is_sport<-grepl("Sport",us_english_data$genre)
+	#Thriller
+	us_english_data$is_thriller<-grepl("Thriller",us_english_data$genre)
+	#War
+	us_english_data$is_war<-grepl("War",us_english_data$genre)
+	#Western
+	us_english_data$is_western<-grepl("Western",us_english_data$genre)
