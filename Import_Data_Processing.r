@@ -2,15 +2,102 @@
 #Data Cleaning Script
 
 #Import data (relevant only to Gloria)
-	full_data<-read.csv("C:/Users/glori/Documents/GitHub/IMDB_Data_Mining_Project/movie_metadata.csv",sep=",",header=TRUE)
+	full_data<-read.csv("C:/Users/glori/Documents/GitHub/IMDB_Data_Mining_Project/movie_metadata_csv.csv",sep=",",header=TRUE)
 
 #look at the metrics for all the data points
 	summary(full_data)
 
-#Naive method, fit all the variables to the data 
-#Try to predict gross2016, even though we know it's in different units
-#can't complete the run on Gloria's laptop
-	#all_predictors<-lm(gross2016~.,data=full_data)
+#Want to create new variables that say whether or not the movie has a specific genre
+#breakdown the current genre category into binary predictors
+	#Action
+	full_data$is_action<-grepl("Action",full_data$genre)
+	#Adventure
+	full_data$is_adventure<-grepl("Adventure",full_data$genre)
+	#Animation
+	full_data$is_animation<-grepl("Animation",full_data$genre)
+	#Biography
+	full_data$is_biography<-grepl("Biography",full_data$genre)
+	#Comedy
+	full_data$is_comedy<-grepl("Comedy",full_data$genre)
+	#Crime
+	full_data$is_crime<-grepl("Crime",full_data$genre)
+	#Documentary
+	full_data$is_documentary<-grepl("Documentary",full_data$genre)
+	#Drama
+	full_data$is_drama<-grepl("Drama",full_data$genre)
+	#Family
+	full_data$is_family<-grepl("Family",full_data$genre)
+	#Fantasy
+	full_data$is_fantasy<-grepl("Fantasy",full_data$genre)
+	#Film-Noir
+	full_data$is_filmnoir<-grepl("Film-Noir",full_data$genre)
+	#Game-Show
+	full_data$is_gameshow<-grepl("Game-Show",full_data$genre)
+	#History
+	full_data$is_history<-grepl("History",full_data$genre)
+	#Horror
+	full_data$is_horror<-grepl("Horror",full_data$genre)
+	#Music/#Musical
+	full_data$is_music<-grepl("Music",full_data$genre)
+	#Mystery
+	full_data$is_mystery<-grepl("Mystery",full_data$genre)
+	#News
+	full_data$is_news<-grepl("News",full_data$genre)
+	#Reality-TV
+	full_data$is_realitytv<-grepl("Reality-TV",full_data$genre)
+	#Romance
+	full_data$is_romance<-grepl("Romance",full_data$genre)
+	#Sci-Fi
+	full_data$is_scifi<-grepl("Sci-Fi",full_data$genre)
+	#Short
+	full_data$is_short<-grepl("Short",full_data$genre)
+	#Sport
+	full_data$is_sport<-grepl("Sport",full_data$genre)
+	#Thriller
+	full_data$is_thriller<-grepl("Thriller",full_data$genre)
+	#War
+	full_data$is_war<-grepl("War",full_data$genre)
+	#Western
+	full_data$is_western<-grepl("Western",full_data$genre)
+
+	
+#only including genres that have a decent number of non-zero movies
+all_pred<-c("color","num_critic_for_reviews","duration","director_facebook_likes" , "actor_3_facebook_likes","actor_1_facebook_likes",
+"num_voted_users","cast_total_facebook_likes","facenumber_in_poster",
+"num_user_for_reviews","content_rating","budget","title_year","actor_2_facebook_likes","imdb_score","aspect_ratio","movie_facebook_likes","budget2016","gross2016")
+
+#Get the subset of the data with only these columns
+sub_data<-subset(full_data,gross2016!="#N/A"&country=="USA"&language=="English",select=all_pred)
+
+#convert gross and budget to float
+#note that many values are 0 so the summary statistics seem low
+sub_data$gross2016<-as.numeric(sub_data$gross2016)
+sub_data$budget2016<-as.numeric(sub_data$budget2016)
+
+model_1<-lm(gross2016~.-gross2016,data=sub_data)
+summary(model_1)
+
+#LOOCV for the above model
+library(class)
+library(boot)
+new_sub<-sub_data[complete.cases(sub_data),]
+dim(new_sub)
+#[1] 3292   19
+
+glm.fit<-glm(gross2016~.-gross2016,data=subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R"))
+cv_error<-cv.glm(subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R"), glm.fit)
+ cv_error$delta[1]
+#[1] 1498903
+
+#implementing best subset
+library(bestglm)
+set.seed(1)
+X<-subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R")
+X$gross2016<-NULL
+y<-subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R")$gross2016
+Xy<-cbind(X,y)
+best_subset<-bestglm(Xy,IC="CV",family=gaussian)
+
 
 
 #Trying a smaller subset of predictors
@@ -196,83 +283,27 @@
 	keep_country<-c("USA","Canada","UK","France","Germany")
 	keep_language<-c("English")
 	keep_content_rating<-c("G","PG","PG-13","R")
-	us_english_data<-full_data[which(full_data$country %in% keep_country),]
-	us_english_data<-us_english_data[which(us_english_data$language %in% keep_language),]
-	us_english_data<-us_english_data[which(us_english_data$content_rating %in% keep_content_rating),]
-	summary(us_english_data)
+	full_data<-full_data[which(full_data$country %in% keep_country),]
+	full_data<-full_data[which(full_data$language %in% keep_language),]
+	full_data<-full_data[which(full_data$content_rating %in% keep_content_rating),]
+	summary(full_data)
 
 #also need to get rid of the NAs from some of the remaining columns
 	#num_critic_for_reviews
-	us_english_data<-us_english_data[which(!is.na(us_english_data$num_critic_for_reviews)),]
+	full_data<-full_data[which(!is.na(full_data$num_critic_for_reviews)),]
 	#duration
-	us_english_data<-us_english_data[which(!is.na(us_english_data$duration)),]
+	full_data<-full_data[which(!is.na(full_data$duration)),]
 	#actor_3_facebook_likes
-	us_english_data<-us_english_data[which(!is.na(us_english_data$actor_3_facebook_likes)),]
+	full_data<-full_data[which(!is.na(full_data$actor_3_facebook_likes)),]
 	#gross2016
-	us_english_data<-us_english_data[which(!is.na(us_english_data$gross2016)),]
+	full_data<-full_data[which(!is.na(full_data$gross2016)),]
 	#facenumber_in_poster
-	us_english_data<-us_english_data[which(!is.na(us_english_data$facenumber_in_poster)),]
+	full_data<-full_data[which(!is.na(full_data$facenumber_in_poster)),]
 	#budget2016
-	us_english_data<-us_english_data[which(!is.na(us_english_data$budget2016)),]
+	full_data<-full_data[which(!is.na(full_data$budget2016)),]
 	#aspect_ratio
-	us_english_data<-us_english_data[which(!is.na(us_english_data$aspect_ratio)),]
+	full_data<-full_data[which(!is.na(full_data$aspect_ratio)),]
 	
+
 	
-#How many rows in the subset?
-	dim(us_english_data)
-	#3420 rows
-	#about 68% of the original data
-	#most accurate subset of the data
-	
-#Want to create new variables that say whether or not the movie has a specific genre
-#breakdown the current genre category into binary predictors
-	#Action
-	us_english_data$is_action<-grepl("Action",us_english_data$genre)
-	#Adventure
-	us_english_data$is_adventure<-grepl("Adventure",us_english_data$genre)
-	#Animation
-	us_english_data$is_animation<-grepl("Animation",us_english_data$genre)
-	#Biography
-	us_english_data$is_biography<-grepl("Biography",us_english_data$genre)
-	#Comedy
-	us_english_data$is_comedy<-grepl("Comedy",us_english_data$genre)
-	#Crime
-	us_english_data$is_crime<-grepl("Crime",us_english_data$genre)
-	#Documentary
-	us_english_data$is_documentary<-grepl("Documentary",us_english_data$genre)
-	#Drama
-	us_english_data$is_drama<-grepl("Drama",us_english_data$genre)
-	#Family
-	us_english_data$is_family<-grepl("Family",us_english_data$genre)
-	#Fantasy
-	us_english_data$is_fantasy<-grepl("Fantasy",us_english_data$genre)
-	#Film-Noir
-	us_english_data$is_filmnoir<-grepl("Film-Noir",us_english_data$genre)
-	#Game-Show
-	us_english_data$is_gameshow<-grepl("Game-Show",us_english_data$genre)
-	#History
-	us_english_data$is_history<-grepl("History",us_english_data$genre)
-	#Horror
-	us_english_data$is_horror<-grepl("Horror",us_english_data$genre)
-	#Music/#Musical
-	us_english_data$is_music<-grepl("Music",us_english_data$genre)
-	#Mystery
-	us_english_data$is_mystery<-grepl("Mystery",us_english_data$genre)
-	#News
-	us_english_data$is_news<-grepl("News",us_english_data$genre)
-	#Reality-TV
-	us_english_data$is_realitytv<-grepl("Reality-TV",us_english_data$genre)
-	#Romance
-	us_english_data$is_romance<-grepl("Romance",us_english_data$genre)
-	#Sci-Fi
-	us_english_data$is_scifi<-grepl("Sci-Fi",us_english_data$genre)
-	#Short
-	us_english_data$is_short<-grepl("Short",us_english_data$genre)
-	#Sport
-	us_english_data$is_sport<-grepl("Sport",us_english_data$genre)
-	#Thriller
-	us_english_data$is_thriller<-grepl("Thriller",us_english_data$genre)
-	#War
-	us_english_data$is_war<-grepl("War",us_english_data$genre)
-	#Western
-	us_english_data$is_western<-grepl("Western",us_english_data$genre)
+
