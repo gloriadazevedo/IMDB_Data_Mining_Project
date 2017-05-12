@@ -1,6 +1,6 @@
 getwd()
 setwd("/Users/Erik's PC/Desktop/DataMining")
-full_data<-read.csv("movie_metadata.csv",sep=",",header=TRUE)
+full_data<-read.csv("movie_metadatav3.csv",sep=",",header=TRUE)
 
 #******** Clean Date: Remove movies not from U.S and w/ missing gross
 
@@ -22,8 +22,8 @@ cleaned_data = cleaned_data[!(is.na(cleaned_data$gross) | cleaned_data$gross==""
 
 # Get relevant variables
 # For now left off facebook related varibles since they are correlated with title year. Also left off language since 99% are English
-data2 = cleaned_data[, c("duration","genres", "content_rating", "title_year",
-                     "imdb_score", "budget2016", "gross2016") ]
+data2 = cleaned_data[, c("duration","genres", "content_rating", "director_facebook_likes", "actor_1_facebook_likes", "cast_total_facebook_likes", "actor_2_facebook_likes", "title_year",
+                     "imdb_score", "budget2016", "gross2016", "movie_facebook_likes") ]
 #get rid of rows w/ missing/NA values 
 data2 = deletemissing(data2)
 
@@ -56,10 +56,6 @@ data2 = data2[!(data2$gross2016 == 0 | data2$budget2016 == 0), ]
   data2$is_family<-grepl("Family",data2$genre)
   #Fantasy
   data2$is_fantasy<-grepl("Fantasy",data2$genre)
-  #Film-Noir
-  data2$is_filmnoir<-grepl("Film-Noir",data2$genre)
-  #Game-Show
-  data2$is_gameshow<-grepl("Game-Show",data2$genre)
   #History
   data2$is_history<-grepl("History",data2$genre)
   #Horror
@@ -68,16 +64,10 @@ data2 = data2[!(data2$gross2016 == 0 | data2$budget2016 == 0), ]
   data2$is_music<-grepl("Music",data2$genre)
   #Mystery
   data2$is_mystery<-grepl("Mystery",data2$genre)
-  #News
-  data2$is_news<-grepl("News",data2$genre)
-  #Reality-TV
-  data2$is_realitytv<-grepl("Reality-TV",data2$genre)
   #Romance
   data2$is_romance<-grepl("Romance",data2$genre)
   #Sci-Fi
   data2$is_scifi<-grepl("Sci-Fi",data2$genre)
-  #Short
-  data2$is_short<-grepl("Short",data2$genre)
   #Sport
   data2$is_sport<-grepl("Sport",data2$genre)
   #Thriller
@@ -91,12 +81,11 @@ data2 = data2[!(data2$gross2016 == 0 | data2$budget2016 == 0), ]
   data2$is_PG<-data2$content_rating=="PG"
   data2$is_PG_13<-data2$content_rating=="PG-13"
   data2$is_R<-data2$content_rating=="R"
-  data2$is_M<-data2$content_rating=="M"  
-  data2$is_NotRated<-data2$content_rating=="Not-Rated"
-  data2$is_Approved<-data2$content_rating=="Approved"
 #Get rid of Genres and Content Rating Column
   data2$genres <- NULL
   data2$content_rating <- NULL
-#Currenty data2 has 3023 rows and 37 Columns
-
+#Currenty data2 has 3235 rows and 31 Columns
+#Convert gross and budget to numeric
+  data2$gross2016<-as.numeric(data2$gross2016)
+  data2$budget2016<-as.numeric(data2$budget2016)
   
