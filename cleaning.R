@@ -22,7 +22,7 @@ cleaned_data = cleaned_data[!(is.na(cleaned_data$gross) | cleaned_data$gross==""
 
 # Get relevant variables
 # For now left off facebook related varibles since they are correlated with title year. Also left off language since 99% are English
-data2 = cleaned_data[, c("duration","genres", "content_rating", "director_facebook_likes", "actor_1_facebook_likes", "cast_total_facebook_likes", "actor_2_facebook_likes", "title_year",
+data2 = cleaned_data[, c("duration","genres", "content_rating", "director_facebook_likes", "actor_1_facebook_likes", "cast_total_facebook_likes", "actor_2_facebook_likes", "actor_3_facebook_likes", "title_year",
                      "imdb_score", "budget2016", "gross2016", "movie_facebook_likes") ]
 #get rid of rows w/ missing/NA values 
 data2 = deletemissing(data2)
