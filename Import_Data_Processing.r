@@ -97,7 +97,7 @@ new_sub$is_R<-new_sub$content_rating=="R"
 
 #Need to create indicator variables for color
 new_sub$is_color<-new_sub$color=="Color"
-new_sub$not_color<-new_sub$color!="Color"
+#new_sub$not_color<-new_sub$color!="Color"
 
 #implementing best subset
 library(bestglm)
@@ -105,9 +105,25 @@ set.seed(1)
 X<-new_sub
 X$gross2016<-NULL
 X$content_rating<-NULL
+X$color<-NULL
+X$budget<-NULL
 y<-new_sub$gross2016
 Xy<-cbind(X,y)
 best_subset<-bestglm(Xy,IC="BIC",family=gaussian)
+# BIC
+# BICq equivalent for q in (0.385941678163465, 0.642763442897387)
+# Best Model:
+                         # Estimate  Std. Error   t value     Pr(>|t|)
+# (Intercept)             325.23846 124.1807724  2.619073 8.857460e-03
+# num_critic_for_reviews    1.04177   0.1794844  5.804236 7.080998e-09
+# is_comedyTRUE           136.23307  44.9269349  3.032325 2.445740e-03
+# is_GTRUE                922.72811 167.7611759  5.500248 4.082939e-08
+# is_PGTRUE              1018.22383 110.0050704  9.256154 3.717907e-20
+# is_PG_13TRUE           1119.49442 103.3816023 10.828759 7.116474e-27
+# is_RTRUE                986.12541 100.7725607  9.785654 2.610533e-22
+# is_colorTRUE            340.12541 113.2589236  3.003078 2.692792e-03
+
+best_subset_loocv<-bestglm(Xy,IC="CV",family=gaussian)
 
 
 
