@@ -64,7 +64,7 @@
 #only including genres that have a decent number of non-zero movies
 all_pred<-c("color","num_critic_for_reviews","duration","director_facebook_likes" , "actor_3_facebook_likes","actor_1_facebook_likes",
 "num_voted_users","cast_total_facebook_likes","facenumber_in_poster",
-"num_user_for_reviews","content_rating","budget","title_year","actor_2_facebook_likes","imdb_score","aspect_ratio","movie_facebook_likes","budget2016","gross2016")
+"num_user_for_reviews","content_rating","budget","title_year","actor_2_facebook_likes","imdb_score","aspect_ratio","movie_facebook_likes","budget2016","gross2016","is_biography","is_comedy","is_crime","is_documentary","is_drama","is_family","is_fantasy","is_history","is_horror","is_music","is_mystery","is_romance","is_scifi","is_sport","is_thriller","is_war","is_western")
 
 #Get the subset of the data with only these columns
 sub_data<-subset(full_data,gross2016!="#N/A"&country=="USA"&language=="English",select=all_pred)
@@ -82,21 +82,32 @@ library(class)
 library(boot)
 new_sub<-sub_data[complete.cases(sub_data),]
 dim(new_sub)
-#[1] 3292   19
+#[1] 3292   36
 
 glm.fit<-glm(gross2016~.-gross2016,data=subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R"))
 cv_error<-cv.glm(subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R"), glm.fit)
  cv_error$delta[1]
-#[1] 1498903
+#[1] 1504668
+
+#Need to create indicator variables for the content ratings
+new_sub$is_G<-new_sub$content_rating=="G"
+new_sub$is_PG<-new_sub$content_rating=="PG"
+new_sub$is_PG_13<-new_sub$content_rating=="PG-13"
+new_sub$is_R<-new_sub$content_rating=="R"
+
+#Need to create indicator variables for color
+new_sub$is_color<-new_sub$color=="Color"
+new_sub$not_color<-new_sub$color!="Color"
 
 #implementing best subset
 library(bestglm)
 set.seed(1)
-X<-subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R")
+X<-new_sub
 X$gross2016<-NULL
-y<-subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R")$gross2016
+X$content_rating<-NULL
+y<-new_sub$gross2016
 Xy<-cbind(X,y)
-best_subset<-bestglm(Xy,IC="CV",family=gaussian)
+best_subset<-bestglm(Xy,IC="BIC",family=gaussian)
 
 
 
