@@ -123,7 +123,22 @@ best_subset<-bestglm(Xy,IC="BIC",family=gaussian)
 # is_RTRUE                986.12541 100.7725607  9.785654 2.610533e-22
 # is_colorTRUE            340.12541 113.2589236  3.003078 2.692792e-03
 
-best_subset_loocv<-bestglm(Xy,IC="CV",family=gaussian)
+#10-fold cross validation for best subset
+best_subset_cv<-bestglm(Xy, IC="CV", family=gaussian,CVArgs=list(Method="HTF", K=10, REP=1))
+best_subset_cv$delta[1]
+
+#forward backward subset selection
+library(MASS)
+model_step<-glm.fit
+n<-length(X[,1])
+best_forward_backward<-step(model_step,direction="both",k=log(n))
+summary(best_forward_backward)
+
+#Need to find the 90th percentile
+percentile_90<-quantile(y,.90)
+
+
+
 
 
 
