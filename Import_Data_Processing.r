@@ -156,8 +156,10 @@ n<-length(X[,1])
 best_forward_backward<-step(model_step,direction="both",k=log(n))
 summary(best_forward_backward)
 
+############################################################################
+#Logistic Regression
 #Need to find the 90th percentile
-percentile_90<-quantile(y,.90)
+percentile_90<-quantile(sub_data$gross2016,.90)
 
 #Make a new variable that says whether or not the adjusted gross amount exceeded this threshold
 new_sub$over_90<-new_sub$gross2016>=percentile_90
@@ -168,6 +170,12 @@ X$color<-NULL
 X$budget<-NULL
 X$over_90<-NULL
 y<-new_sub$over_90
+
+#logistic regression with everything
+model_2<-glm(y~.,data=X,family="binomial")
+summary(model_2)
+sum(residuals(model_2, type="deviance")^2) # residuals
+#1163.074
 
 
 
