@@ -146,7 +146,7 @@ best_subset
 # is_colorTRUE          5.953752e-08
 
 #10-fold cross validation for best subset
-best_subset_cv<-bestglm(Xy, IC="CV", family=gaussian,CVArgs=list(Method="HTF", K=10, REP=1))
+best_subset_cv<-bestglm(Xy, IC="CV", family=gaussian,CVArgs=list(Method="HTF", K=5, REP=1))
 best_subset_cv$delta[1]
 
 #forward backward subset selection
@@ -159,9 +159,20 @@ summary(best_forward_backward)
 #Need to find the 90th percentile
 percentile_90<-quantile(y,.90)
 
+#Make a new variable that says whether or not the adjusted gross amount exceeded this threshold
+new_sub$over_90<-new_sub$gross2016>=percentile_90
+X<-new_sub
+X$gross2016<-NULL
+X$content_rating<-NULL
+X$color<-NULL
+X$budget<-NULL
+X$over_90<-NULL
+y<-new_sub$over_90
 
 
-#KNN algorithm
+
+
+#KNN algorithm for predicting adjusted gross amount
 library(class)
 library(FNN)
 #Need to test for different values of k
@@ -197,6 +208,46 @@ knn_model
 # R2-Predict =  0.4153479 
 # PRESS	:the sums of squares of the predicted residuals. NULL if test is supplied.
 # R2Pred:predicted R-square. NULL if test is supplied.
+
+#################################################################################
+#KNN to predict whether or not the 
+#adjusted gross amount exceeds the 90th percentile
+X_scale<-scale(X)
+y_scale<-scale(y)
+
+#Divide into training and test sets
+train_ind<-sample(1:nrow(X_scale),(2/3)*nrow(X_scale))
+X_train<-X_scale[train_ind,]
+X_test<-X_scale[-train_ind,]
+y_train<-y_scale[train_ind,]
+y_test<-y_scale[-train_ind,]
+
+error<-rep(0,6)
+K<-c(1,3,5,10,20,50)
+for(i in (1:6)){
+	set.seed(1);
+	knn.pred<-knn(X_train, X_test, y_train, k=K[i]);
+	#hold on to squared error
+	error[i]<-1-mean(knn.pred==y_test)
+}
+error
+# 0.09744991 0.07559199 0.06830601 0.07012750 0.06921676 0.07377049
+
+
+plot(K,error,main="With Normalization",xlab="K", ylab="error rate")
+#KNN_K_Normalization_Logistic
+
+#Now use the  k=5 value to run knn with cross validation
+#knn.cv uses LOOCV
+knn_model<-knn.reg(train=X_scale,y=y_scale,k=5)
+knn_model
+# PRESS =  2563.905 
+# R2-Predict =  0.2209344 
+
+
+
+
+
 
 
 #Trying a smaller subset of predictors
