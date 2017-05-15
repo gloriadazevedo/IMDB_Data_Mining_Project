@@ -99,7 +99,7 @@ new_sub$is_R<-new_sub$content_rating=="R"
 
 #Need to create indicator variables for color
 new_sub$is_color<-new_sub$color=="Color"
-#new_sub$not_color<-new_sub$color!="Color"
+
 
 #implementing best subset
 library(bestglm)
@@ -161,6 +161,15 @@ summary(best_forward_backward)
 #Need to find the 90th percentile
 percentile_90<-quantile(sub_data$gross2016,.90)
 
+new_sub<-sub_data[complete.cases(sub_data),]
+new_sub$is_G<-new_sub$content_rating=="G"
+new_sub$is_PG<-new_sub$content_rating=="PG"
+new_sub$is_PG_13<-new_sub$content_rating=="PG-13"
+new_sub$is_R<-new_sub$content_rating=="R"
+
+#Need to create indicator variables for color
+new_sub$is_color<-new_sub$color=="Color"
+
 #Make a new variable that says whether or not the adjusted gross amount exceeded this threshold
 new_sub$over_90<-new_sub$gross2016>=percentile_90
 X<-new_sub
@@ -168,7 +177,6 @@ X$gross2016<-NULL
 X$content_rating<-NULL
 X$color<-NULL
 X$budget<-NULL
-X$over_90<-NULL
 y<-new_sub$over_90
 
 #logistic regression with everything
@@ -177,6 +185,16 @@ summary(model_2)
 sum(residuals(model_2, type="deviance")^2) # residuals
 #1163.074
 
+#Implementing LOOCV for logistic
+library(class)
+library(boot)
+new_sub<-X[complete.cases(X),]
+
+glm.fit<-glm(y~.,data=new_sub)
+Xy<-cbind(X,y)
+cv_error<-cv.glm(Xy, glm.fit)
+ cv_error$delta[1]
+#7.59127e-31
 
 
 
