@@ -2,7 +2,7 @@
 #Data Cleaning Script
 
 #Import data (relevant only to Gloria)
-	full_data<-read.csv("C:/Users/glori/Documents/GitHub/IMDB_Data_Mining_Project/movie_metadata_csv.csv",sep=",",header=TRUE)
+	full_data<-read.csv("C:/Users/glori/Documents/GitHub/IMDB_Data_Mining_Project/movie_metadatav3.csv",sep=",",header=TRUE)
 
 #look at the metrics for all the data points
 	summary(full_data)
@@ -71,11 +71,13 @@ sub_data<-subset(full_data,gross2016!="#N/A"&country=="USA"&language=="English",
 
 #convert gross and budget to float
 #note that many values are 0 so the summary statistics seem low
-sub_data$gross2016<-as.numeric(sub_data$gross2016)
-sub_data$budget2016<-as.numeric(sub_data$budget2016)
+sub_data$gross2016<-as.numeric(as.character(sub_data$gross2016))
+sub_data$budget2016<-as.numeric(as.character(sub_data$budget2016))
 
-model_1<-lm(gross2016~.-gross2016,data=sub_data)
+model_1<-lm(gross2016~.-gross2016-budget,data=sub_data)
 summary(model_1)
+#Adjusted R^2 is 0.493 ; R^2 is 0.5004
+#Residual Standard error 17450000
 
 #LOOCV for the above model
 library(class)
@@ -87,7 +89,7 @@ dim(new_sub)
 glm.fit<-glm(gross2016~.-gross2016,data=subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R"))
 cv_error<-cv.glm(subset(new_sub,content_rating=="G"|content_rating=="PG"|content_rating=="PG-13"|content_rating=="R"), glm.fit)
  cv_error$delta[1]
-#[1] 1504668
+#3.054393e+14
 
 #Need to create indicator variables for the content ratings
 new_sub$is_G<-new_sub$content_rating=="G"
@@ -110,18 +112,38 @@ X$budget<-NULL
 y<-new_sub$gross2016
 Xy<-cbind(X,y)
 best_subset<-bestglm(Xy,IC="BIC",family=gaussian)
+best_subset
 # BIC
-# BICq equivalent for q in (0.385941678163465, 0.642763442897387)
+# BICq equivalent for q in (0.302316957864094, 0.70587988679876)
 # Best Model:
-                         # Estimate  Std. Error   t value     Pr(>|t|)
-# (Intercept)             325.23846 124.1807724  2.619073 8.857460e-03
-# num_critic_for_reviews    1.04177   0.1794844  5.804236 7.080998e-09
-# is_comedyTRUE           136.23307  44.9269349  3.032325 2.445740e-03
-# is_GTRUE                922.72811 167.7611759  5.500248 4.082939e-08
-# is_PGTRUE              1018.22383 110.0050704  9.256154 3.717907e-20
-# is_PG_13TRUE           1119.49442 103.3816023 10.828759 7.116474e-27
-# is_RTRUE                986.12541 100.7725607  9.785654 2.610533e-22
-# is_colorTRUE            340.12541 113.2589236  3.003078 2.692792e-03
+                          # Estimate   Std. Error    t value
+# (Intercept)           6.862656e+08 5.626122e+07  12.197845
+# num_voted_users       5.432561e+01 2.615716e+00  20.768926
+# title_year           -3.533166e+05 2.805153e+04 -12.595271
+# imdb_score            1.494904e+06 3.568938e+05   4.188652
+# movie_facebook_likes -1.145222e+02 1.793002e+01  -6.387177
+# budget2016            8.926260e-01 2.187603e-02  40.803837
+# is_comedyTRUE         2.397195e+06 6.694833e+05   3.580665
+# is_historyTRUE       -6.467428e+06 1.856042e+06  -3.484526
+# is_horrorTRUE         3.942329e+06 1.021156e+06   3.860652
+# is_GTRUE              7.190662e+06 2.057431e+06   3.494971
+# is_PGTRUE             7.407980e+06 9.302755e+05   7.963212
+# is_PG_13TRUE          2.453901e+06 7.305542e+05   3.358959
+# is_colorTRUE          9.026111e+06 1.661422e+06   5.432764
+                          # Pr(>|t|)
+# (Intercept)           1.679529e-33
+# num_voted_users       4.102180e-90
+# title_year            1.473084e-35
+# imdb_score            2.880088e-05
+# movie_facebook_likes  1.928138e-10
+# budget2016           1.007565e-294
+# is_comedyTRUE         3.476936e-04
+# is_historyTRUE        4.994675e-04
+# is_horrorTRUE         1.152661e-04
+# is_GTRUE              4.803940e-04
+# is_PGTRUE             2.290547e-15
+# is_PG_13TRUE          7.913041e-04
+# is_colorTRUE          5.953752e-08
 
 #10-fold cross validation for best subset
 best_subset_cv<-bestglm(Xy, IC="CV", family=gaussian,CVArgs=list(Method="HTF", K=10, REP=1))
@@ -139,7 +161,42 @@ percentile_90<-quantile(y,.90)
 
 
 
+#KNN algorithm
+library(class)
+library(FNN)
+#Need to test for different values of k
+#Need to normalize data
+X_scale<-scale(X)
+y_scale<-scale(y)
 
+#Divide into training and test sets
+train_ind<-sample(1:nrow(X_scale),(2/3)*nrow(X_scale))
+X_train<-X_scale[train_ind,]
+X_test<-X_scale[-train_ind,]
+y_train<-y_scale[train_ind,]
+y_test<-y_scale[-train_ind,]
+
+error<-rep(0,6)
+K<-c(1,3,5,10,20,50)
+for(i in (1:6)){
+	set.seed(1);
+	knn.pred<-knn.reg(X_train, X_test, y_train, k=K[i]);
+	#hold on to squared error
+	error[i]<-sum((knn.pred$pred-y_test)^2)
+}
+error
+#571.2664 496.2441 520.7357 546.4428 578.1610 632.4638
+plot(K,error,main="With Normalization",xlab="K", ylab="error rate")
+#KNN_K_Normalization
+
+#Now use the  k=3 value to run knn with cross validation
+#knn.cv uses LOOCV
+knn_model<-knn.reg(train=X_scale,y=y_scale,k=3)
+knn_model
+# PRESS =  1924.09 
+# R2-Predict =  0.4153479 
+# PRESS	:the sums of squares of the predicted residuals. NULL if test is supplied.
+# R2Pred:predicted R-square. NULL if test is supplied.
 
 
 #Trying a smaller subset of predictors
