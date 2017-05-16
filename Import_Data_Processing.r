@@ -220,8 +220,10 @@ model_step<-glm.fit
 n<-length(X[,1])
 best_forward_backward<-step(model_step,direction="both",k=log(n))
 summary(best_forward_backward)
-
-
+forward_backward_predict<-predict(best_forward_backward,X,type="response")
+forward_backward_binary<-as.numeric(forward_backward_predict>=0.5)
+#misclassification rate
+sum(abs(forward_backward_binary-y))/length(y)
 
 #KNN algorithm for predicting adjusted gross amount
 library(class)
