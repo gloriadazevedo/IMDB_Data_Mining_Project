@@ -145,11 +145,11 @@ best_subset
 # is_PG_13TRUE          7.913041e-04
 # is_colorTRUE          5.953752e-08
 
-#10-fold cross validation for best subset
+#5-fold cross validation for best subset
 best_subset_cv<-bestglm(Xy, IC="CV", family=gaussian,CVArgs=list(Method="HTF", K=5, REP=1))
 best_subset_cv$delta[1]
 
-#forward backward subset selection
+#forward backward subset selection for the regression case
 library(MASS)
 model_step<-glm.fit
 n<-length(X[,1])
@@ -177,6 +177,7 @@ X$gross2016<-NULL
 X$content_rating<-NULL
 X$color<-NULL
 X$budget<-NULL
+X$over_90<-NULL
 y<-new_sub$over_90
 
 #logistic regression with everything
@@ -185,16 +186,40 @@ summary(model_2)
 sum(residuals(model_2, type="deviance")^2) # residuals
 #1163.074
 
+log_predict<-predict(model_2,type="response")
+binary_log_predict<-as.numeric(log_predict>=0.5)
+#Count the number of misclassifications
+sum(abs(binary_log_predict-y))/length(y)
+#Misclassification rate : 0.07685298
+
+
 #Implementing LOOCV for logistic
 library(class)
 library(boot)
 new_sub<-X[complete.cases(X),]
 
-glm.fit<-glm(y~.,data=new_sub)
+glm.fit<-glm(y~.,data=new_sub,family="binomial")
 Xy<-cbind(X,y)
 cv_error<-cv.glm(Xy, glm.fit)
  cv_error$delta[1]
-#7.59127e-31
+#0.05863461
+
+#Best subset selection with logistic regression
+library(bestglm)
+set.seed(1)
+best_subset<-bestglm(Xy,IC="BIC",family=binomial)
+best_subset
+
+#K-fold cross validation for logistic regression
+#5-fold cross validation for best subset
+best_subset_cv<-bestglm(Xy, IC="CV", family=binomial,CVArgs=list(Method="HTF", K=5, REP=1))
+
+#forward backward subset selection for the logistic case
+library(MASS)
+model_step<-glm.fit
+n<-length(X[,1])
+best_forward_backward<-step(model_step,direction="both",k=log(n))
+summary(best_forward_backward)
 
 
 
@@ -239,7 +264,7 @@ knn_model
 #KNN to predict whether or not the 
 #adjusted gross amount exceeds the 90th percentile
 X_scale<-scale(X)
-y_scale<-scale(y)
+y_scale<-(y)
 
 #Divide into training and test sets
 train_ind<-sample(1:nrow(X_scale),(2/3)*nrow(X_scale))
@@ -257,18 +282,19 @@ for(i in (1:6)){
 	error[i]<-1-mean(knn.pred==y_test)
 }
 error
-# 0.09744991 0.07559199 0.06830601 0.07012750 0.06921676 0.07377049
+# 0.1357013 0.1165756 0.1038251 0.1029144 0.1065574 0.1111111
 
 
 plot(K,error,main="With Normalization",xlab="K", ylab="error rate")
 #KNN_K_Normalization_Logistic
 
-#Now use the  k=5 value to run knn with cross validation
+#Now use the  k=10 value to run knn with cross validation
 #knn.cv uses LOOCV
-knn_model<-knn.reg(train=X_scale,y=y_scale,k=5)
-knn_model
-# PRESS =  2563.905 
-# R2-Predict =  0.2209344 
+knn_model<-knn.cv(train=X_scale,cl=y_scale,k=10)
+knn_model_binary<-as.numeric(knn_model)-1
+#misclassification rate
+sum(abs(knn_model_binary-y))/length(y)
+#0.09356015
 
 
 
