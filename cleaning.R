@@ -13,6 +13,9 @@ table(full_data$country)
 #Delete rows with movies from all countries other than USA
 cleaned_data = full_data[which(full_data$country %in% "USA"),]
 
+cleaned_data$gross2016<- as.numeric(as.character(cleaned_data$gross2016))
+
+
 #count rows with missing gross
 sum(is.na(cleaned_data$gross))
 #572 rows have missing gross
@@ -23,10 +26,11 @@ cleaned_data = cleaned_data[!(is.na(cleaned_data$gross) | cleaned_data$gross==""
 # Get relevant variables
 # For now left off facebook related varibles since they are correlated with title year. Also left off language since 99% are English
 data2 = cleaned_data[, c("duration","genres", "content_rating", "director_facebook_likes", "actor_1_facebook_likes", "cast_total_facebook_likes", "actor_2_facebook_likes", "actor_3_facebook_likes", "title_year",
-                     "imdb_score", "budget2016", "gross2016", "movie_facebook_likes") ]
+                     "imdb_score", "budget2016", "gross2016", "movie_facebook_likes", "color", "num_user_for_reviews", "facenumber_in_poster") ]
 #get rid of rows w/ missing/NA values 
 data2 = deletemissing(data2)
-
+#get rid of movies w/ title year exceeding 2016
+data2 = data2[data2$title_year <= 2016, ]
 #Count # rows for each feature that is empty. 
 #check 0 for budget & gross
 sum(data2$gross2016 == 0)
@@ -81,11 +85,18 @@ data2 = data2[!(data2$gross2016 == 0 | data2$budget2016 == 0), ]
   data2$is_PG<-data2$content_rating=="PG"
   data2$is_PG_13<-data2$content_rating=="PG-13"
   data2$is_R<-data2$content_rating=="R"
+#color
+  data2$is_color<-data2$color=="Color"
 #Get rid of Genres and Content Rating Column
   data2$genres <- NULL
   data2$content_rating <- NULL
-#Currenty data2 has 3235 rows and 31 Columns
+  data2$color <- NULL
 #Convert gross and budget to numeric
-  data2$gross2016<-as.numeric(data2$gross2016)
-  data2$budget2016<-as.numeric(data2$budget2016)
-  
+  data2$gross2016<- as.numeric(as.character(data2$gross2016))
+  data2$budget2016<- as.numeric(as.character(data2$budget2016))
+#Currenty data2 has 3225 rows and 38 Columns
+data = data2[complete.cases(data2),]
+summary(data2)
+
+#Note: budget has NAs
+write.csv(data2, file = "cleaned_data.csv")
