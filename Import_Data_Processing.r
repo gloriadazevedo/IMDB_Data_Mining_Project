@@ -209,6 +209,13 @@ library(bestglm)
 set.seed(1)
 best_subset<-bestglm(Xy,IC="BIC",family=binomial)
 best_subset
+#Resulting model:
+best_subset_model<-glm(y~num_voted_users+title_year+imdb_score+movie_facebook_likes+budget2016+is_comedy+is_history+is_horror+is_G+is_PG+is_PG_13+is_color,data=X,family="binomial")
+best_subset_predict<-predict(best_subset_model,data=X,type="response")
+best_subset_binary<-as.numeric(best_subset_predict>=0.5)
+#misclassification rate
+sum(abs(best_subset_binary-y))/length(y)
+#0.07897934
 
 #K-fold cross validation for logistic regression
 #5-fold cross validation for best subset
