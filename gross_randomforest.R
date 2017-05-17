@@ -13,7 +13,7 @@ cv.error=rep(0,(ncol(new_sub) -1))
 for (i in 1:(ncol(new_sub) -1))
 {
   #fit model
-  movies=randomForest(gross2016 ~.-budget,data=new_sub,subset=train, mtry = i)   
+  movies=randomForest(gross2016 ~.,data=new_sub,subset=train, mtry = i)   
   #calculate error
   yhat.bag = predict(movies, newdata=new_sub[train,])
   cv.error[i] =  mean((yhat.bag - movies.cv)^2)
@@ -25,7 +25,7 @@ which.min(cv.error)
 #=35
 #Calculate test error
 #Fit Random Forest. Set number of trees (ntree) and variables (mtry) at each iteration to default
-movies=randomForest(gross2016 ~.-budget,data=new_sub,subset=train, importance=TRUE, mtry = which.min(cv.error))
+movies=randomForest(gross2016 ~.,data=new_sub,subset=train, importance=TRUE, mtry = which.min(cv.error))
 #Calculate Error
 yhat.bag = predict(movies, newdata=new_sub[-train,])
 mean((yhat.bag - movies.test)^2)

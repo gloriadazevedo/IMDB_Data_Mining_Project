@@ -87,3 +87,7 @@ new_sub$is_R<-new_sub$content_rating=="R"
 #Need to create indicator variables for color
 new_sub$is_color<-new_sub$color=="Color"
 #new_sub$not_color<-new_sub$color!="Color"
+
+new_sub$content_rating<-NULL
+new_sub$color<-NULL
+new_sub$budget<-NULL
