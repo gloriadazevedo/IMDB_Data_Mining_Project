@@ -17,3 +17,13 @@ cv_error$lambda.min
 coef(cv_error, cv_error$lambda.min)
 #get test error
 mse.min <- cv_error $cvm[cv_error $lambda == cv_error $lambda.min]
+
+#LASSO for gross
+library(glmnet)
+y = new_sub$gross2016
+x = as.matrix(new_sub[,!names(new_sub) %in% 'gross2016'])
+cv_error = cv.glmnet(x, y, alpha = 1, nfolds = 10)
+cv_error$lambda.min
+coef(cv_error, cv_error$lambda.min)
+#get test error
+mse.min <- cv_error $cvm[cv_error $lambda == cv_error $lambda.min]
