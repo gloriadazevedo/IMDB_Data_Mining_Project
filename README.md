@@ -7,8 +7,10 @@ The main collaborators are Gloria D'Azevedo (gad87@cornell.edu) and Erik Enrique
 
 In this project we are investigating and analyzing the IMDB 5000 Kaggle dataset (https://www.kaggle.com/deepmatrix/imdb-5000-movie-dataset)
 
-The full project proposal can be found at https://github.com/gloriadazevedo/IMDB_Data_Mining_Project/blob/master/Proposal.pdf and the full report will be available May 17, 2017.
+The full project proposal can be found at https://github.com/gloriadazevedo/IMDB_Data_Mining_Project/blob/master/Proposal.pdf 
+
+The full report can be found at https://github.com/gloriadazevedo/IMDB_Data_Mining_Project/blob/master/IMDB_Final_Analysis_Report.pdf
 
 Thanks for reading!
 
-Updated May 11,2017
+Updated May 17,2017
